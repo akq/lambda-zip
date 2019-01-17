@@ -1,15 +1,23 @@
 {
   "author": {
-    "name": "Jacques-Olivier Goussard",
-    "email": "jogoussard@gmail.com"
+    "name": "Min Shi",
+    "email": "etipss@gmail.com"
   },
   "contributors": [{
-    "name": "Merlin Taylor",
-    "email": "code.merlin.taylor@gmail.com"
-   }],
+      "name": "Merlin Taylor",
+      "email": "code.merlin.taylor@gmail.com"
+  },
+  {
+    "name": "Jacques-Olivier Goussard",
+    "email": "jogoussard@gmail.com"
+  }],
   "bin": {
     "repack-zip": "bin/repack-zip.js"
   },
+  "bugs": {
+    "url": "https://github.com/akq/lambda-zip/issues"
+  },
+
   "dependencies": {
     "archiver": "^1.3.0",
     "bluebird": "^3.5.0",
@@ -36,19 +44,19 @@
   "main": "index.js",
   "maintainers": [
     {
-      "name": "Jacques-Olivier Goussard",
-      "email": "jogoussard@gmail.com"
+      "name": "Min Shi",
+      "email": "etipss@gmail.com"
     }
   ],
-  "name": "repack-zip",
+  "name": "lambda-zip",
   "optionalDependencies": {},
   "readme": "README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jogoussard/node-repack-zip.git"
+    "url": "git+https://github.com/akq/lambda-zip.git"
   },
   "scripts": {
-    "test": "node bin/repack-zip.js"
+    "test": "node bin/lambda-zip.js"
   },
-  "version": "0.2.5"
+  "version": "0.3"
 }

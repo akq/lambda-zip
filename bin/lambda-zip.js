@@ -8,8 +8,9 @@ const { pack } = require('../index');
 var args = process.argv.slice(2);
 
 if (args.length <= 2) {
-    let source = args.length >= 1 ? { source: args[0] } : {};
+    let source = args.length >= 1 ? { opt: args[0] } : {};
     let destination = args.length >= 2 ? { destination: args[1] } : {};
+
     pack(Object.assign(source, destination))
         .then(() => process.exit(0))
         .catch(error => {
@@ -17,6 +18,8 @@ if (args.length <= 2) {
             process.exit(1);
         });
 } else {
-    console.log('USAGE: pack-zip [source] [destination]');
+    console.log('USAGE: repack-zip [source] [destination]');
     process.exit(1);
 }
+// console.log( process.argv[0])
+// pack({opt:'.zip.dev', destination:'1.zip'});

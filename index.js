@@ -13,7 +13,6 @@ const DEFAULT_IGNORE_PATTERNS = [
 ];
 
 const DEFAULT_INCLUDE_PATTERNS = [
-    '**/*',
     '!node_modules/**'
 ];
 
@@ -22,7 +21,9 @@ let resolvePathRelativeTo = (() => {
     return cwd => path.resolve.bind(path, cwd || pcwd);
 })();
 
-let getFiles = ({ cwd }) => ({ include, ignore }) => globby(include, { cwd: cwd || process.cwd(), ignore, nodir: true });
+let getFiles = ({ cwd }) => (
+    { include, ignore }) => globby(include, { cwd: cwd || process.cwd(), ignore, nodir: true }
+);
 
 function getPackageInfo(packageFile) {
     return readFile(packageFile, 'utf-8')
@@ -77,17 +78,45 @@ function getPackageDependencies({ cwd }) {
         .then(flatten);
 }
 
-function getGlobPatterns({ cwd }) {
+function getGlobPatterns({ cwd, opt }) {
     let at = resolvePathRelativeTo(cwd);
+
+
+    let ignorePatterns = readFile(at(opt), 'utf-8')
+        .then(txt => txt.split('\n').map(line => line.trim()).filter(line => {
+            let keep = false;
+            if(line.length > 0){
+                if(line[0] == '!'){
+                    DEFAULT_IGNORE_PATTERNS.push(line.substr(1))
+                    keep = true;
+                }
+                else
+                    DEFAULT_INCLUDE_PATTERNS.push(line)
+            }
+            return keep;
+        }))
+        .catch(error => error.code === 'ENOENT' ? Promise.resolve([]) : Promise.reject(error))
+        .then(() => {
+            if(DEFAULT_INCLUDE_PATTERNS.length == 1)
+                DEFAULT_INCLUDE_PATTERNS.unshift('**/*');
+            return DEFAULT_IGNORE_PATTERNS
+        })
+        // .then(pattern => {
+        //         DEFAULT_IGNORE_PATTERNS.concat(pattern)
+        // });
 
     let includePatterns = getPackageDependencies({ cwd })
         .then(dependencies => dependencies.map(x => `node_modules/${x}/**`))
-        .then(includePatterns => DEFAULT_INCLUDE_PATTERNS.concat(includePatterns))
+        .then(pattern => (
+            DEFAULT_INCLUDE_PATTERNS.concat(pattern)
+        ))
+        ;
+    // let ignorePatterns = readFile(at('.packignore'), 'utf-8')
+    //     .then(txt => txt.split('\n').map(line => line.trim()).filter(line => line.length > 0))
+    //     .catch(error => error.code === 'ENOENT' ? Promise.resolve([]) : Promise.reject(error))
+    //     .then(ignorePatterns => DEFAULT_IGNORE_PATTERNS.concat(ignorePatterns))
 
-    let ignorePatterns = readFile(at('.packignore'), 'utf-8')
-        .then(txt => txt.split('\n').map(line => line.trim()).filter(line => line.length > 0))
-        .catch(error => error.code === 'ENOENT' ? Promise.resolve([]) : Promise.reject(error))
-        .then(ignorePatterns => DEFAULT_IGNORE_PATTERNS.concat(ignorePatterns))
+
 
     return Promise.all([includePatterns, ignorePatterns])
         .then(([include, ignore]) => ({ include, ignore }));
@@ -102,13 +131,16 @@ function zipFiles({ cwd, destination }) {
         archive.pipe(fs.createWriteStream(destination)).on('end', () => resolve());
         files
             .filter(f => { return f !== destination })
-            .forEach(file => archive.file(at(file), { name: file }));
+            .forEach(file => {
+                console.log(file);
+                return archive.file(at(file), { name: file })
+            });
         archive.finalize();
     });
 }
 
-function pack({ source, destination }) {
-    let files = getGlobPatterns({ cwd: source })
+function pack({ source, destination, opt }) {
+    let files = getGlobPatterns({ cwd: source, opt })
         .then(getFiles({ cwd: source }));
 
     let outputFilename = destination
