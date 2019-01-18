@@ -12,7 +12,7 @@
     "email": "jogoussard@gmail.com"
   }],
   "bin": {
-    "repack-zip": "bin/lambda-zip"
+    "lambda-zip": "bin/lambda-zip.js"
   },
   "bugs": {
     "url": "https://github.com/akq/lambda-zip/issues"
